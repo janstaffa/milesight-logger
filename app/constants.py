@@ -1,0 +1,1 @@
+API_ENDPOINT_URL = "http://localhost:1111/api"
