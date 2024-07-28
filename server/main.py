@@ -41,15 +41,16 @@ def query_db(query, args=(), one=False):
 
 
 def get_latest_data():
-    (eui, temp, hum, bat) = query_db(
+    (eui, temp, hum, bat, timestamp) = query_db(
         """
         SELECT 
             t.device_eui,
             t.value AS latest_temperature,
             h.value AS latest_humidity,
-            b.value AS latest_battery
+            b.value AS latest_battery,
+            t.timestamp
         FROM 
-        (SELECT device_eui, value
+        (SELECT device_eui, value, timestamp
             FROM data
             WHERE parameter = 'temperature'
             ORDER BY timestamp DESC
@@ -70,7 +71,9 @@ def get_latest_data():
         ON t.device_eui = b.device_eui;""",
         one=True,
     )
-    return dict({"eui": eui, "temp": temp, "hum": hum, "bat": bat})
+    return dict(
+        {"eui": eui, "temp": temp, "hum": hum, "bat": bat, "timestamp": timestamp}
+    )
 
 
 _LAST_RECORD_TIMESTAMP = 1721317738631
@@ -113,11 +116,11 @@ def get_data_in_range(t_from, t_to):
     )
 
     for r in records:
-        result[r[2]]['vals'].append(r[3])
-        result[r[2]]['timestamps'].append(r[1])
-
+        result[r[2]]["vals"].append(r[3])
+        result[r[2]]["timestamps"].append(r[1])
 
     return result
+
 
 @app.route("/", methods=["GET"])
 def home():
