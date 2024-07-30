@@ -1,1 +1,2 @@
 API_ENDPOINT_URL = "http://localhost:1111/api"
+CHART_Y_RANGE_PADDING = 10
