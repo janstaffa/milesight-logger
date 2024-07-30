@@ -3,8 +3,8 @@
 Simple cross platform application for logging and displaying temperature and humidity data from Milesight® sensors 
 
 <div align="center">
-	<img src="/assets/app1.png" width="300px"/>
-	<img src="/assets/app1.png" width="300px"/>
+	<img src="/assets/app1.png" width="400px"/>
+	<img src="/assets/app1.png" width="400px"/>
 </div>
 
 
