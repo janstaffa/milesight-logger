@@ -4,7 +4,7 @@ Simple cross platform application for logging and displaying temperature and hum
 
 <div align="center">
 	<img src="/assets/app1.png" width="400px"/>
-	<img src="/assets/app1.png" width="400px"/>
+	<img src="/assets/app2.png" width="400px"/>
 </div>
 
 
