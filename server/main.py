@@ -147,6 +147,12 @@ def teardown_db(_):
 
 
 
+DEBUG = False
 # Run the app
 if __name__ == "__main__":
-    app.run(host=config["SERVER_IP"], port=1111, debug=True)
+    # Disable logging of Flask messages
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
+    app.run(host=config["SERVER_IP"], port=1111, debug=DEBUG)
