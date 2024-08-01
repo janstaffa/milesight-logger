@@ -15,6 +15,11 @@ from db import *
 from utils import *
 import json
 
+import datetime
+from dotenv import dotenv_values
+
+
+config = dotenv_values(".env")
 
 # Initialize the app
 app = Flask(__name__)
@@ -67,7 +72,8 @@ def api_latest():
         ).jsonify()
 
 
-_LAST_RECORD_TIMESTAMP = 1721317738631 # Replace for current time 
+# _LAST_RECORD_TIMESTAMP = 1721317738631
+
 
 @app.route("/api/week", methods=["GET"])
 def api_week():
@@ -78,15 +84,18 @@ def api_week():
         )
         return response.jsonify()
 
-    time_start = _LAST_RECORD_TIMESTAMP - WEEK_MILLIS
+    # now = _LAST_RECORD_TIMESTAMP # Replace for current time
 
-    week_data = get_data_in_range(device, time_start, _LAST_RECORD_TIMESTAMP)
+    now = round(time.time() * 1000)
+    time_start = now - WEEK_MILLIS
+
+    week_data = get_data_in_range(device, time_start, now)
 
     response_struct = dict(
         {
             "device_eui": device,
             "from": time_start,
-            "to": _LAST_RECORD_TIMESTAMP,
+            "to": now,
             "data": week_data,
         }
     )
@@ -107,6 +116,9 @@ def data():
     dev_decoded_data = decodeHelper(dev_data_enc)
 
     db_data = []
+    now = datetime.datetime.now()
+    
+    print(f"{now} > logged data for device: {dev_eui}")
 
     for key in [TEMPERATURE_KEY, HUMIDITY_KEY]:
         if key in dev_decoded_data:
@@ -134,6 +146,7 @@ def teardown_db(_):
         db.close()
 
 
+
 # Run the app
 if __name__ == "__main__":
-    app.run(host="localhost", port=1111, debug=True)
+    app.run(host=config["SERVER_IP"], port=1111, debug=True)

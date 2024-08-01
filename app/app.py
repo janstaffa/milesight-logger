@@ -1,12 +1,25 @@
 import sys
+import os
 
 from PySide6.QtWidgets import QApplication, QStyleFactory
 from PySide6.QtGui import QPalette, QColor
 
 import datetime
 
+from constants import DEFAULT_API_ENDPOINT_URL
 from widgets.main_window import MainWindow
 
+import argparse
+
+parser = argparse.ArgumentParser(prog="Milesight logger client", epilog="by janstaffa")
+parser.add_argument("-s", "--server")
+
+args = parser.parse_args()
+
+if args.server == None:
+    os.environ["SERVER_URL"] = DEFAULT_API_ENDPOINT_URL
+else:
+    os.environ["SERVER_URL"] = args.server
 
 app = QApplication(sys.argv)
 

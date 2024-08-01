@@ -9,9 +9,9 @@ from PySide6.QtGui import QIcon
 from utils import *
 from widgets.display_section import DisplaySection
 from widgets.chart import Chart
-from constants import API_ENDPOINT_URL
 from time import gmtime, strftime
 import sys
+import os
 
 
 class MainWindow(QMainWindow):
@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
         self.set_loading_state()
         try:
             latest_response = requests.get(
-                API_ENDPOINT_URL + "/latest", params={"device": device_eui}
+                os.environ["SERVER_URL"] + "/latest", params={"device": device_eui}
             )
             data = process_server_response(latest_response)
 
@@ -91,10 +91,11 @@ class MainWindow(QMainWindow):
             self.display_section.bat_display.setText(str(bat_perc) + " %")
         except Exception as error:
             ErrorMessage(title="Request failed", msg=str(error)).exec()
+            raise error
 
         if fetch_week:
             week_response = requests.get(
-                API_ENDPOINT_URL + "/week", params={"device": device_eui}
+                os.environ["SERVER_URL"] + "/week", params={"device": device_eui}
             )
             try:
                 data = process_server_response(week_response)
@@ -102,10 +103,11 @@ class MainWindow(QMainWindow):
 
             except Exception as error:
                 ErrorMessage(title="Request failed", msg=str(error)).exec()
+                raise error
 
     def fetch_device_list(self):
         try:
-            response = requests.get(API_ENDPOINT_URL + "/devices")
+            response = requests.get(os.environ["SERVER_URL"] + "/devices")
             device_list = process_server_response(response)
 
             self.devices = device_list
@@ -113,3 +115,4 @@ class MainWindow(QMainWindow):
 
         except Exception as error:
             ErrorMessage(title="Request failed", msg=str(error)).exec()
+            raise error

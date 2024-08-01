@@ -106,11 +106,11 @@ class Chart(QWidget):
             "humidity": self.humidity_check.isChecked(),
             "battery": self.battery_check.isChecked(),
         }
-        if checked["temperature"]:
+        if checked["temperature"] and "temperature" in self.loaded_series:
             self.loaded_series["temperature"].show()
-        if checked["humidity"]:
+        if checked["humidity"] and "humidity" in self.loaded_series:
             self.loaded_series["humidity"].show()
-        if checked["battery"]:
+        if checked["battery"] and "battery" in self.loaded_series:
             self.loaded_series["battery"].show()
 
         y_range = [1000, -1000]
@@ -140,6 +140,9 @@ class Chart(QWidget):
         keys = ["temperature", "humidity", "battery"]
         for key in keys:
             d = data[key]
+            if len(d["vals"]) == 0:
+                continue
+            
             y_data = np.array(d["vals"])
 
             if key == "battery":  # Convert to % if the key is battery
