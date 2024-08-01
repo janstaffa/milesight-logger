@@ -117,7 +117,7 @@ def data():
 
     db_data = []
     now = datetime.datetime.now()
-    
+
     print(f"{now} > logged data for device: {dev_eui}")
 
     for key in [TEMPERATURE_KEY, HUMIDITY_KEY]:
@@ -146,13 +146,14 @@ def teardown_db(_):
         db.close()
 
 
-
 DEBUG = False
 # Run the app
 if __name__ == "__main__":
     # Disable logging of Flask messages
-    import logging
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.ERROR)
+    if DEBUG == False:
+        import logging
+
+        log = logging.getLogger("werkzeug")
+        log.setLevel(logging.ERROR)
 
     app.run(host=config["SERVER_IP"], port=1111, debug=DEBUG)
