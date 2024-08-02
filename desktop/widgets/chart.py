@@ -131,6 +131,7 @@ class Chart(QWidget):
     def render_data(self, data):
         self.clear_series()
 
+    
         self.data = data
 
 
