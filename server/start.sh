@@ -1,0 +1,1 @@
+gunicorn -w 3 -b 10.0.0.2:1111 'main:app' --daemon
