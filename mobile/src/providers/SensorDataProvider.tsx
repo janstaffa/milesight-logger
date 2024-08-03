@@ -10,7 +10,7 @@ const SensorDataContext = createContext<SensorDataContextType>({
   fetchData: () => {},
 });
 
-const DEFAULT_API_URL = 'http://78.80.32.122:1111/api';
+export const DEFAULT_API_URL = 'http://78.80.32.122:1111/api';
 
 const SensorDataProvider: React.FC<React.PropsWithChildren> = ({
   children,
