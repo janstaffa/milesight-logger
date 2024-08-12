@@ -9,7 +9,7 @@ Simple cross platform application for logging and displaying temperature and hum
 </div>
 
 ### Mobile app
-<img src="/assets/mobile_preview.gif" width="400px"/>
+<img src="/assets/mobile_preview.gif" height="600px"/>
 
 ### Server
 The server application listens for LoRaWAN® Gateway Messages. More information available [here](https://docs.loriot.io/space/NMS/6032911/Gateway+Message). 
