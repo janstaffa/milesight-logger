@@ -20,7 +20,11 @@ import { Picker } from '@react-native-picker/picker';
 import { Text as SKText } from '@shopify/react-native-skia';
 import { format as format_date } from 'date-fns';
 import { useEffect, useState } from 'react';
-import { showErrorAlert } from '../../utils';
+import {
+  TemperatureUnit,
+  useSettings,
+} from '../../../providers/SettingsProvider';
+import { showErrorAlert, toFahrenheit, toKelvin } from '../../utils';
 type PointData = Record<string, number>;
 type LineData = PointData[];
 
@@ -34,6 +38,7 @@ const CHART_COLORS = {
   humidity: '#0000FF',
   battery: '#FCC600',
 };
+
 export default function SensorDetailsScreen() {
   const { eui } = useLocalSearchParams();
   const { sensorData } = useSensorData();
@@ -41,6 +46,15 @@ export default function SensorDetailsScreen() {
   const [weekData, setWeekData] = useState<WeekData | null>(null);
   const [selectedParameter, setSelectedParameter] =
     useState<DataParameter>('temperature');
+
+  const { tempUnit: selectedTempUnit } = useSettings();
+
+  const tempUnit =
+    selectedTempUnit === TemperatureUnit.Celsius
+      ? '°C'
+      : selectedTempUnit === TemperatureUnit.Fahrenheit
+      ? '°F'
+      : 'K';
 
   const fetchWeekData = () => {
     fetch(DEFAULT_API_URL + '/week' + `?device=${eui}`)
@@ -67,8 +81,12 @@ export default function SensorDetailsScreen() {
             if (key === 'battery') {
               y /= 255;
               y *= 100;
+            } else if (key === 'temperature') {
+              if (selectedTempUnit === TemperatureUnit.Fahrenheit)
+                y = toFahrenheit(y);
+              else if (selectedTempUnit === TemperatureUnit.Kelvin)
+                y = toKelvin(y);
             }
-
             const point = {
               timestamp: x,
               value: y,
@@ -99,7 +117,7 @@ export default function SensorDetailsScreen() {
   }, [state]);
 
   const value = useDerivedValue(() => {
-    const unit = selectedParameter === 'temperature' ? '°C' : '%';
+    const unit = selectedParameter === 'temperature' ? tempUnit : '%';
     return state.y.value.value.value.toFixed(2).toString() + unit;
   }, [state, selectedParameter]);
 
@@ -108,6 +126,13 @@ export default function SensorDetailsScreen() {
   const data = sensorData.find((s) => s.sensor.eui === eui);
   if (!data) return <Text>Sensor data not found</Text>;
 
+  let tempVal = data.temperature;
+
+  if (selectedTempUnit === TemperatureUnit.Fahrenheit)
+    tempVal = toFahrenheit(tempVal);
+  else if (selectedTempUnit === TemperatureUnit.Kelvin)
+    tempVal = toKelvin(tempVal);
+  
   return (
     <>
       <View style={styles.container}>
@@ -115,9 +140,12 @@ export default function SensorDetailsScreen() {
           <Text>Name: -</Text>
           <Text>EUI: {eui}</Text>
           <Text>Last message: {new Date(data.timestamp).toLocaleString()}</Text>
-          <Text>Temperature: {data.temperature}°C</Text>
-          <Text>Humidity: {data.humidity}%</Text>
-          <Text>Battery: {Math.round((data.battery / 255) * 100)}%</Text>
+          <Text>
+            Temperature: {tempVal.toFixed(2)}
+            {tempUnit}
+          </Text>
+          <Text>Humidity: {data.humidity.toFixed(2)}%</Text>
+          <Text>Battery: {((data.battery / 255) * 100).toFixed(2)}%</Text>
         </View>
         <View style={styles.chartWrap}>
           <View style={styles.pickerContainer}>
@@ -146,8 +174,9 @@ export default function SensorDetailsScreen() {
                   y: 10,
                 },
                 formatYLabel(label) {
-                  const unit = selectedParameter === 'temperature' ? '°C' : '%';
-                  return label.toFixed(2).toString() + unit;
+                  const unit =
+                    selectedParameter === 'temperature' ? tempUnit : '%';
+                  return label.toString() + unit;
                 },
                 formatXLabel(label) {
                   const d = new Date(label);
@@ -275,6 +304,6 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderRadius: 5,
     overflow: 'hidden',
-    marginBottom: 15
+    marginBottom: 15,
   },
 });

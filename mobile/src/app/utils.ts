@@ -1,4 +1,5 @@
 import { Alert } from 'react-native';
+import { MessageOptions, showMessage } from 'react-native-flash-message';
 
 export const showErrorAlert = (msg: string, title = 'Error') => {
   Alert.alert(
@@ -48,3 +49,9 @@ export function getColorGradient(color1: string, color2: string, i: number) {
     ('00' + newB.toString(16)).slice(-2)
   );
 }
+
+export const toFahrenheit = (c: number) => (9 / 5) * c + 32;
+export const toKelvin = (c: number) => c + 273.15;
+
+export const showStyledFlashMessage = (options: MessageOptions) =>
+  showMessage({ ...options, statusBarHeight: 30 });

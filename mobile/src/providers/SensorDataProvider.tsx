@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { showErrorAlert } from '../app/utils';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { showErrorAlert, showStyledFlashMessage } from '../app/utils';
+import { useSettings } from './SettingsProvider';
 
 interface SensorDataContextType {
   sensorData: SensorData[];
@@ -10,15 +11,19 @@ const SensorDataContext = createContext<SensorDataContextType>({
   fetchData: () => {},
 });
 
-export const DEFAULT_API_URL = 'http://78.80.32.122:1111/api';
+export const DEFAULT_API_URL = 'http://10.0.0.2:1111/api';
+export const POLLING_INTERVAL = 10 * 1000; // 10 seconds
 
 const SensorDataProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
+  const { serverUrl, autoRefresh } = useSettings();
   const [sensors, setSensors] = useState<Sensor[]>([]);
 
+  const serverApi = serverUrl + '/api';
   const fetchSensors = () => {
-    fetch(DEFAULT_API_URL + '/devices')
+    if (serverUrl.length === 0) return;
+    fetch(serverApi + '/devices')
       .then((d) => d.json())
       .then((response: ServerResponse) => {
         if (response.status === 'err') return showErrorAlert(response.message!);
@@ -27,22 +32,33 @@ const SensorDataProvider: React.FC<React.PropsWithChildren> = ({
           eui: s,
         }));
         setSensors(fetchedSensors);
+      })
+      .catch((e) => {
+        showStyledFlashMessage({
+          message: 'Network error, check server URL',
+          type: 'danger',
+        });
       });
   };
   useEffect(() => {
     fetchSensors();
   }, []);
 
-  const [sensorData, setSensorData] = useState<SensorData[]>([]);
-  useEffect(() => {
-    const fetchedSensorData: SensorData[] = [];
-    const requests = sensors.map((s) =>
-      fetch(DEFAULT_API_URL + '/latest' + `?device=${s.eui}`)
+  const fetchSensorData = async (sens: Sensor[]): Promise<SensorData[]> => {
+    const requests = sens.map((s) =>
+      fetch(serverApi + '/latest' + `?device=${s.eui}`)
         .then((d) => d.json())
         .then((response: ServerResponse) => {
-          if (response.status === 'err')
-            return showErrorAlert(response.message!);
-          if (!response.data) return showErrorAlert('Invalid server response');
+          if (response.status === 'err') {
+            showErrorAlert(response.message!);
+            throw 'Network error';
+          }
+
+          if (!response.data) {
+            showErrorAlert('Invalid server response');
+            throw 'Network error';
+          }
+
           const sensorDataEntry: SensorData = {
             sensor: s,
             temperature: response.data.temp,
@@ -51,14 +67,39 @@ const SensorDataProvider: React.FC<React.PropsWithChildren> = ({
             timestamp: response.data.timestamp,
           };
 
-          fetchedSensorData.push(sensorDataEntry);
+          return sensorDataEntry;
         })
     );
 
-    Promise.all(requests).then(() => {
-      setSensorData(fetchedSensorData);
-    });
-  }, [sensors]);
+    return Promise.all(requests);
+  };
+
+  const [sensorData, setSensorData] = useState<SensorData[]>([]);
+  let interval = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (sensors.length === 0) return;
+    const _fetchSensorData = () =>
+      fetchSensorData(sensors)
+        .then((d) => {
+          setSensorData(d);
+        })
+        .catch((_) => {
+          showStyledFlashMessage({ message: 'Network error, check server URL', type: 'danger' });
+        });
+
+    _fetchSensorData();
+
+    if (autoRefresh) {
+      interval.current = setInterval(_fetchSensorData, POLLING_INTERVAL);
+    } else {
+      interval.current !== null && clearInterval(interval.current);
+    }
+
+    return () => {
+      interval.current !== null && clearInterval(interval.current);
+    };
+  }, [sensors, autoRefresh]);
 
   return (
     <SensorDataContext.Provider value={{ sensorData, fetchData: fetchSensors }}>
@@ -68,6 +109,5 @@ const SensorDataProvider: React.FC<React.PropsWithChildren> = ({
 };
 
 export default SensorDataProvider;
-
 
 export const useSensorData = () => useContext(SensorDataContext);

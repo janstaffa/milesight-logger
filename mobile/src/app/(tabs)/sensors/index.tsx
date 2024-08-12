@@ -6,15 +6,20 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useSensorData } from '@providers/SensorDataProvider';
 import { Stack } from 'expo-router';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { useSettings } from '../../../providers/SettingsProvider';
 
 export default function SensorsScreen() {
   const { sensorData, fetchData } = useSensorData();
+  const { tempUnit } = useSettings();
+
   return (
     <>
       <View style={styles.container}>
         <FlatList
           data={sensorData}
-          renderItem={({ item }) => <SensorCard sensorData={item} />}
+          renderItem={({ item }) => (
+            <SensorCard sensorData={item} tempUnit={tempUnit} />
+          )}
         />
       </View>
       <Stack.Screen
@@ -46,7 +51,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#fafafa',
   },
   title: {
     fontSize: 20,
