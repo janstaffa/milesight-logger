@@ -141,7 +141,7 @@ export default function SensorDetailsScreen() {
     <>
       <View style={styles.container}>
         <View style={[styles.dataWrap, { backgroundColor: colors.background }]}>
-          <Text>Name: -</Text>
+          {/* <Text>Name: -</Text> */}
           <Text>EUI: {eui}</Text>
           <Text>Last message: {new Date(data.timestamp).toLocaleString()}</Text>
           <Text>

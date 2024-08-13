@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { showErrorAlert, showStyledFlashMessage } from '../app/utils';
 
@@ -106,17 +107,20 @@ const SettingsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   }, []);
 
   return (
-    <SettingsContext.Provider
-      value={{
-        serverUrl,
-        colorMode,
-        autoRefresh,
-        tempUnit,
-        saveSettings,
-      }}
-    >
-      {children}
-    </SettingsContext.Provider>
+    <>
+      <SettingsContext.Provider
+        value={{
+          serverUrl,
+          colorMode,
+          autoRefresh,
+          tempUnit,
+          saveSettings,
+        }}
+      >
+        {children}
+      </SettingsContext.Provider>
+      <StatusBar style={colorMode == ColorMode.Dark ? 'light' : 'dark'} />
+    </>
   );
 };
 

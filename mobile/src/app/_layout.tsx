@@ -14,7 +14,6 @@ export {
   ErrorBoundary
 } from 'expo-router';
 
-
 // // Prevent the splash screen from auto-hiding before asset loading is complete.
 // SplashScreen.preventAutoHideAsync();
 
@@ -46,14 +45,12 @@ function RootLayoutNav() {
   // const colorScheme = useColorScheme();
 
   return (
-    <React.Fragment>
-      <SettingsProvider>
-        <Stack initialRouteName='index'>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-        <FlashMessage position="top" />
-      </SettingsProvider>
-    </React.Fragment>
+    <SettingsProvider>
+      <Stack initialRouteName="index">
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+      <FlashMessage position="top" />
+    </SettingsProvider>
   );
 }

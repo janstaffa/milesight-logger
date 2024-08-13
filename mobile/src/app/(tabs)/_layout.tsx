@@ -26,6 +26,7 @@ export default function TabLayout() {
         headerShown: useClientOnlyValue(false, true),
         headerStyle: {
           backgroundColor: colors.background,
+          shadowColor: 'black'
         },
         tabBarStyle: {
           backgroundColor: colors.background,
