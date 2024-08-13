@@ -1,6 +1,6 @@
 import { StyleSheet, Switch, TextInput, TouchableOpacity } from 'react-native';
 
-import { Text, View } from '@/src/components/Themed';
+import { Text, useThemeColors, View } from '@/src/components/Themed';
 import { Picker } from '@react-native-picker/picker';
 import { useState } from 'react';
 import Colors from '../../constants/Colors';
@@ -14,6 +14,8 @@ export default function SettingsScreen() {
   const { serverUrl, autoRefresh, colorMode, tempUnit, saveSettings } =
     useSettings();
 
+  const colors = useThemeColors();
+
   const [newServerURL, setNewServerURL] = useState(serverUrl);
   const [newDarkMode, setNewDarkMode] = useState(colorMode === ColorMode.Dark);
   const [newAutoRefresh, setNewAutoRefresh] = useState(autoRefresh);
@@ -24,7 +26,8 @@ export default function SettingsScreen() {
       <View style={styles.row}>
         <Text style={styles.title}>Data server</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.text }]}
+          placeholderTextColor={colors.text}
           onChangeText={(t) => setNewServerURL(t)}
           value={newServerURL}
           placeholder="localhost:1111"
@@ -37,6 +40,7 @@ export default function SettingsScreen() {
           value={newDarkMode}
           onValueChange={(v) => setNewDarkMode(v)}
           style={{ alignSelf: 'flex-start' }}
+          trackColor={{ false: colors.text }}
         />
       </View>
 
@@ -46,6 +50,7 @@ export default function SettingsScreen() {
           value={newAutoRefresh}
           onValueChange={(v) => setNewAutoRefresh(v)}
           style={{ alignSelf: 'flex-start' }}
+          trackColor={{ false: colors.text }}
         />
       </View>
       <View style={styles.row}>
@@ -57,6 +62,10 @@ export default function SettingsScreen() {
               setNewTempUnit(itemValue);
             }}
             mode="dialog"
+            style={{
+              color: colors.text,
+            }}
+            dropdownIconColor={colors.text}
           >
             <Picker.Item label="Celsius (°C)" value={TemperatureUnit.Celsius} />
             <Picker.Item

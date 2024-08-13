@@ -1,7 +1,7 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { View } from '@components/Themed';
-import { DEFAULT_API_URL, useSensorData } from '@providers/SensorDataProvider';
+import { Text, useThemeColors, View } from '@components/Themed';
+import { useSensorData } from '@providers/SensorDataProvider';
 import { Stack, useLocalSearchParams } from 'expo-router';
 
 import {
@@ -43,11 +43,15 @@ export default function SensorDetailsScreen() {
   const { eui } = useLocalSearchParams();
   const { sensorData } = useSensorData();
 
+  const colors = useThemeColors();
+
   const [weekData, setWeekData] = useState<WeekData | null>(null);
   const [selectedParameter, setSelectedParameter] =
     useState<DataParameter>('temperature');
 
-  const { tempUnit: selectedTempUnit } = useSettings();
+  const { tempUnit: selectedTempUnit, serverUrl } = useSettings();
+
+  const serverApi = serverUrl + '/api';
 
   const tempUnit =
     selectedTempUnit === TemperatureUnit.Celsius
@@ -57,7 +61,7 @@ export default function SensorDetailsScreen() {
       : 'K';
 
   const fetchWeekData = () => {
-    fetch(DEFAULT_API_URL + '/week' + `?device=${eui}`)
+    fetch(serverApi + '/week' + `?device=${eui}`)
       .then((d) => d.json())
       .then((response: ServerResponse) => {
         if (response.status === 'err') return showErrorAlert(response.message!);
@@ -132,11 +136,11 @@ export default function SensorDetailsScreen() {
     tempVal = toFahrenheit(tempVal);
   else if (selectedTempUnit === TemperatureUnit.Kelvin)
     tempVal = toKelvin(tempVal);
-  
+
   return (
     <>
       <View style={styles.container}>
-        <View style={styles.dataWrap}>
+        <View style={[styles.dataWrap, { backgroundColor: colors.background }]}>
           <Text>Name: -</Text>
           <Text>EUI: {eui}</Text>
           <Text>Last message: {new Date(data.timestamp).toLocaleString()}</Text>
@@ -153,6 +157,8 @@ export default function SensorDetailsScreen() {
               selectedValue={selectedParameter}
               onValueChange={(itemValue, _) => setSelectedParameter(itemValue)}
               mode="dropdown"
+              dropdownIconColor={colors.text}
+              style={{ color: colors.text }}
             >
               <Picker.Item label="Temperature" value="temperature" />
               <Picker.Item label="Humidity" value="humidity" />
@@ -166,11 +172,11 @@ export default function SensorDetailsScreen() {
               yKeys={['value']}
               domainPadding={30}
               axisOptions={{
-                labelColor: 'black',
-                lineColor: 'black',
+                labelColor: colors.text,
+                lineColor: colors.text,
                 font,
                 tickCount: {
-                  x: 6,
+                  x: 5,
                   y: 10,
                 },
                 formatYLabel(label) {
@@ -228,7 +234,7 @@ export default function SensorDetailsScreen() {
                           transform={[{ translateY: -30 }]}
                           font={tooltipFont}
                           text={time}
-                          color={'black'}
+                          color={colors.text}
                           style={'fill'}
                         />
                         <SKText
@@ -237,7 +243,7 @@ export default function SensorDetailsScreen() {
                           transform={[{ translateY: -10 }]}
                           font={tooltipFont}
                           text={value}
-                          color={'black'}
+                          color={colors.text}
                           style={'fill'}
                         />
                       </>

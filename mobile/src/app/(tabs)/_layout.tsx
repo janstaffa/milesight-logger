@@ -20,10 +20,16 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.tint,
+        headerTintColor: colors.text,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        headerStyle: {
+          backgroundColor: colors.background,
+        },
+        tabBarStyle: {
+          backgroundColor: colors.background,
+        },
       }}
       initialRouteName="sensors"
     >
@@ -32,6 +38,7 @@ export default function TabLayout() {
         name="sensors"
         options={{
           title: 'Sensors',
+
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="thermometer" color={color} />

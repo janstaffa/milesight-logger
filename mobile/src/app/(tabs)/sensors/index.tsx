@@ -1,16 +1,18 @@
 import { FlatList, Pressable, StyleSheet } from 'react-native';
 
 import SensorCard from '@components/SensorCard';
-import { View } from '@components/Themed';
+import { useThemeColors, View } from '@components/Themed';
 import { FontAwesome } from '@expo/vector-icons';
 import { useSensorData } from '@providers/SensorDataProvider';
 import { Stack } from 'expo-router';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { useSettings } from '../../../providers/SettingsProvider';
 
 export default function SensorsScreen() {
   const { sensorData, fetchData } = useSensorData();
   const { tempUnit } = useSettings();
+
+  const colors = useThemeColors();
+
 
   return (
     <>
@@ -25,6 +27,7 @@ export default function SensorsScreen() {
       <Stack.Screen
         options={{
           title: 'Sensors',
+          
           headerRight: () => (
             <Pressable
               onPress={() => {
@@ -35,7 +38,7 @@ export default function SensorsScreen() {
                 <FontAwesome
                   name="refresh"
                   size={25}
-                  color={Colors.light.text}
+                  color={colors.text}
                   style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                 />
               )}
